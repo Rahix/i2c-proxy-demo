@@ -4,9 +4,9 @@
 extern crate f3;
 #[macro_use]
 extern crate cortex_m;
-extern crate panic_abort;
 extern crate embedded_hal;
 extern crate lsm303dlhc;
+extern crate panic_abort;
 extern crate pcf8574;
 
 #[macro_use(entry, exception)]
@@ -79,7 +79,9 @@ fn main() -> ! {
     loop {
         i = (i + 1) % sequence.len();
         porta.set(!sequence[i]).unwrap();
-        portb.set(!sequence[(sequence.len()-i) % sequence.len()]).unwrap();
+        portb
+            .set(!sequence[(sequence.len() - i) % sequence.len()])
+            .unwrap();
 
         let a = get_accel();
         iprintln!(&mut itm.stim[0], "Acceleration: {} {} {}", a.0, a.1, a.2);

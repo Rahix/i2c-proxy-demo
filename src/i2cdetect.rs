@@ -4,8 +4,8 @@
 extern crate f3;
 #[macro_use]
 extern crate cortex_m;
-extern crate panic_abort;
 extern crate embedded_hal;
+extern crate panic_abort;
 
 #[macro_use(entry, exception)]
 extern crate cortex_m_rt;
@@ -42,7 +42,10 @@ fn main() -> ! {
 
     let (i2c, _pins) = i2c.free();
 
-    iprintln!(&mut itm.stim[0], "   _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _F");
+    iprintln!(
+        &mut itm.stim[0],
+        "   _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _F"
+    );
     for addr in 0x00..0x78 {
         if addr & 0xf == 0x0 {
             iprint!(&mut itm.stim[0], "{:1X}_ ", addr >> 4);

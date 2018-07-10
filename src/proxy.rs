@@ -1,7 +1,7 @@
 use core::cell;
 
-use embedded_hal::blocking::i2c;
 use cortex_m;
+use embedded_hal::blocking::i2c;
 
 /// Abstraction over synchronisation primitves
 ///
