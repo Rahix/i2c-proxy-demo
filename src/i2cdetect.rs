@@ -41,7 +41,8 @@ fn main() -> ! {
     let (i2c, _pins) = i2c.free();
 
     iprintln!(
-        &mut itm.stim[0], "\
+        &mut itm.stim[0],
+        "\
 i2cdetect util for bare-metal
 -----------
    _0 _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _E _F"

@@ -57,7 +57,7 @@ impl<T> BusMutex<T> for cortex_m::interrupt::Mutex<T> {
 /// ```
 /// let bus = BusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 /// ```
-pub struct BusManager< M: BusMutex<cell::RefCell<T>>, T>(M, ::core::marker::PhantomData<T>);
+pub struct BusManager<M: BusMutex<cell::RefCell<T>>, T>(M, ::core::marker::PhantomData<T>);
 
 impl<M: BusMutex<cell::RefCell<T>>, T> BusManager<M, T> {
     /// Create a new I2C bus manager from the given peripheral
@@ -84,12 +84,10 @@ impl<M: BusMutex<cell::RefCell<T>>, T> BusManager<M, T> {
 /// ```
 pub struct BusProxy<'a, M: 'a + BusMutex<cell::RefCell<T>>, T>(
     &'a M,
-    ::core::marker::PhantomData<T>,
+    ::core::marker::PhantomData<T>
 );
 
-impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Write> i2c::Write
-    for BusProxy<'a, M, T>
-{
+impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Write> i2c::Write for BusProxy<'a, M, T> {
     type Error = T::Error;
 
     fn write(&mut self, addr: u8, bytes: &[u8]) -> Result<(), Self::Error> {
@@ -100,9 +98,7 @@ impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Write> i2c::Write
     }
 }
 
-impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Read> i2c::Read
-    for BusProxy<'a, M, T>
-{
+impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Read> i2c::Read for BusProxy<'a, M, T> {
     type Error = T::Error;
 
     fn read(&mut self, address: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
@@ -114,8 +110,7 @@ impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Read> i2c::Read
 }
 
 impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::WriteRead> i2c::WriteRead
-    for BusProxy<'a, M, T>
-{
+    for BusProxy<'a, M, T> {
     type Error = T::Error;
 
     fn write_read(
