@@ -9,13 +9,13 @@ use embedded_hal::blocking::i2c;
 /// `std::sync::Mutex` (although this implementation
 /// does not allow sharing across threads), on a bare metal
 /// system it could be `cortex_m::interrupt::Mutex`
-pub trait BusMutex<'a, T> {
+pub trait BusMutex<T> {
     /// Create a mutex from the given value
     fn create(v: T) -> Self;
 
     /// Lock the mutex and allow access to the value inside
     /// the given closure
-    fn lock<R, F: FnOnce(&T) -> R>(&'a self, f: F) -> R;
+    fn lock<R, F: FnOnce(&T) -> R>(&self, f: F) -> R;
 }
 
 /*
@@ -33,12 +33,12 @@ impl<'a, T: 'a> BusMutex<'a, T> for ::std::sync::Mutex<T> {
 */
 
 /// Implementation for `cortex_m::interrupt::Mutex`
-impl<'a, T: 'a> BusMutex<'a, T> for cortex_m::interrupt::Mutex<T> {
+impl<T> BusMutex<T> for cortex_m::interrupt::Mutex<T> {
     fn create(v: T) -> Self {
         cortex_m::interrupt::Mutex::new(v)
     }
 
-    fn lock<R, F: FnOnce(&T) -> R>(&'a self, f: F) -> R {
+    fn lock<R, F: FnOnce(&T) -> R>(&self, f: F) -> R {
         cortex_m::interrupt::free(|cs| {
             let v = self.borrow(cs);
             f(v)
@@ -57,24 +57,21 @@ impl<'a, T: 'a> BusMutex<'a, T> for cortex_m::interrupt::Mutex<T> {
 /// ```
 /// let bus = I2cBusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 /// ```
-pub struct I2cBusManager<'a, M: BusMutex<'a, cell::RefCell<T>>, T: 'a>(
-    M,
-    &'a ::core::marker::PhantomData<T>,
-);
+pub struct I2cBusManager< M: BusMutex<cell::RefCell<T>>, T>(M, ::core::marker::PhantomData<T>);
 
-impl<'a, M: BusMutex<'a, cell::RefCell<T>>, T: 'a> I2cBusManager<'a, M, T> {
+impl<M: BusMutex<cell::RefCell<T>>, T:> I2cBusManager<M, T> {
     /// Create a new I2C bus manager from the given peripheral
-    pub fn new(i: T) -> I2cBusManager<'a, M, T> {
+    pub fn new(i: T) -> I2cBusManager<M, T> {
         let mutex = M::create(cell::RefCell::new(i));
 
-        I2cBusManager(mutex, &::core::marker::PhantomData)
+        I2cBusManager(mutex, ::core::marker::PhantomData)
     }
 
     /// Acquire an instance of this bus for a device
     ///
     /// This instance will implement the i2c traits
-    pub fn acquire<'b>(&'a self) -> I2cProxy<'a, 'b, M, T> {
-        I2cProxy(&self.0, &::core::marker::PhantomData)
+    pub fn acquire<'a>(&'a self) -> I2cProxy<'a, M, T> {
+        I2cProxy(&self.0, ::core::marker::PhantomData)
     }
 }
 
@@ -85,15 +82,13 @@ impl<'a, M: BusMutex<'a, cell::RefCell<T>>, T: 'a> I2cBusManager<'a, M, T> {
 /// ```
 /// let device = MyI2cDevice::new(bus.acquire());
 /// ```
-pub struct I2cProxy<'a, 'b, M: 'a + BusMutex<'a, cell::RefCell<T>>, T: 'b>(
+pub struct I2cProxy<'a, M: 'a + BusMutex<cell::RefCell<T>>, T>(
     &'a M,
-    &'b ::core::marker::PhantomData<T>,
-)
-where
-    'a: 'b;
+    ::core::marker::PhantomData<T>,
+);
 
-impl<'a, 'b, M: BusMutex<'a, cell::RefCell<T>>, T: i2c::Write + 'b> i2c::Write
-    for I2cProxy<'a, 'b, M, T>
+impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Write> i2c::Write
+    for I2cProxy<'a, M, T>
 {
     type Error = T::Error;
 
@@ -105,8 +100,8 @@ impl<'a, 'b, M: BusMutex<'a, cell::RefCell<T>>, T: i2c::Write + 'b> i2c::Write
     }
 }
 
-impl<'a, 'b, M: BusMutex<'a, cell::RefCell<T>>, T: i2c::Read + 'b> i2c::Read
-    for I2cProxy<'a, 'b, M, T>
+impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Read> i2c::Read
+    for I2cProxy<'a, M, T>
 {
     type Error = T::Error;
 
@@ -118,8 +113,8 @@ impl<'a, 'b, M: BusMutex<'a, cell::RefCell<T>>, T: i2c::Read + 'b> i2c::Read
     }
 }
 
-impl<'a, 'b, M: BusMutex<'a, cell::RefCell<T>>, T: i2c::WriteRead + 'b> i2c::WriteRead
-    for I2cProxy<'a, 'b, M, T>
+impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::WriteRead> i2c::WriteRead
+    for I2cProxy<'a, M, T>
 {
     type Error = T::Error;
 
