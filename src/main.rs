@@ -79,7 +79,7 @@ fn main() -> ! {
             .unwrap();
 
         let a = get_accel();
-        delay.borrow_mut().delay_ms((a.2 / 5) as u16);
+        delay.borrow_mut().delay_ms(a.2.max(5) as u16);
     }
 }
 
