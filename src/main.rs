@@ -44,7 +44,7 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_af4(&mut gpiob.moder, &mut gpiob.afrl);
     let sda = gpiob.pb7.into_af4(&mut gpiob.moder, &mut gpiob.afrl);
 
-    let mut i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
+    let i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
 
     let bus = proxy::I2cBusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 
@@ -84,12 +84,6 @@ fn main() -> ! {
         let a = get_accel();
         iprintln!(&mut itm.stim[0], "Acceleration: {} {} {}", a.0, a.1, a.2);
         delay.borrow_mut().delay_ms((a.2 / 5) as u16);
-    }
-
-    iprintln!(&mut itm.stim[0], "End");
-
-    loop {
-        asm::bkpt();
     }
 }
 

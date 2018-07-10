@@ -38,9 +38,9 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_af4(&mut gpiob.moder, &mut gpiob.afrl);
     let sda = gpiob.pb7.into_af4(&mut gpiob.moder, &mut gpiob.afrl);
 
-    let mut i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
+    let i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
 
-    let (i2c, pins) = i2c.free();
+    let (i2c, _pins) = i2c.free();
 
     iprintln!(&mut itm.stim[0], "   _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _F");
     for addr in 0x00..0x78 {

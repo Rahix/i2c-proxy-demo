@@ -1,5 +1,4 @@
 use core::cell;
-use core::ops;
 
 use embedded_hal::blocking::i2c;
 use cortex_m;
