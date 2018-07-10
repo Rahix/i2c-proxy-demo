@@ -40,6 +40,15 @@ dependencies = [
 
 [[package]]
 name = "embedded-hal"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "embedded-hal 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "embedded-hal"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
@@ -75,6 +84,7 @@ dependencies = [
  "f3 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lsm303dlhc 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "panic-abort 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pcf8574 0.1.0 (git+https://github.com/Rahix/pcf8574)",
 ]
 
 [[package]]
@@ -105,6 +115,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "panic-abort"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "pcf8574"
+version = "0.1.0"
+source = "git+https://github.com/Rahix/pcf8574#4aa33ca42b597dd1af2235ce45e3a44fecb42e55"
+dependencies = [
+ "embedded-hal 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "r0"
@@ -165,6 +183,7 @@ dependencies = [
 "checksum cc 1.0.17 (registry+https://github.com/rust-lang/crates.io-index)" = "49ec142f5768efb5b7622aebc3fdbdbb8950a4b9ba996393cb76ef7466e8747d"
 "checksum cortex-m 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "93ceb454f8942689dae03a0b1d6b6e866f30acb5358ada9698e71f2728cd4924"
 "checksum cortex-m-rt 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6d5c26952ec2bdfd3c66cddb22cb6432b042ca9ccda55762ebba68b73adbae5a"
+"checksum embedded-hal 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)" = "9b4bd5e4a997b10d2bda0b9845c141496c8c878f9c40310b3f9159539e668a06"
 "checksum embedded-hal 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "26944677e4934eb5fb4025501dc0d6cdbcf6bfabd6200fcfee2e7e8eef8c0362"
 "checksum f3 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f081c0ce81216d24179e220382c9d6199a6223c69584caa0d3b86691376ac4e9"
 "checksum generic-array 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8107dafa78c80c848b71b60133954b4a58609a3a1a5f9af037ecc7f67280f369"
@@ -172,6 +191,7 @@ dependencies = [
 "checksum lsm303dlhc 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9e5d1a5c290951321d1b0d4a40edd828537de9889134a0e67c5146542ae57706"
 "checksum nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "69f380b5fe9fab8c0d7a6a99cda23e2cc0463bedb2cbc3aada0813b98496ecdc"
 "checksum panic-abort 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6bc796c620f27056d4ffe7c558533fd67ae5af0fd8e919fbe38de803368af73e"
+"checksum pcf8574 0.1.0 (git+https://github.com/Rahix/pcf8574)" = "<none>"
 "checksum r0 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e2a38df5b15c8d5c7e8654189744d8e396bddc18ad48041a500ce52d6948941f"
 "checksum stm32f30x 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "dda53c79aa33bdaa107e50b4f4bd206693e5801d257ad33be582debc38f8dabd"
 "checksum stm32f30x-hal 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6b413661b50595f7b34f66612b1f793a1ff687dad7daf5a5544663ed2fd7482c"

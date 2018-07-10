@@ -46,5 +46,7 @@ rustflags = [
   # "-Z", "linker-flavor=ld.lld",
 ]
 
+[build]
+target = "thumbv7em-none-eabihf"
 # (a) you also need to comment out the other two `link-arg` lines. But note that as of v0.6.0 LLD
 # has a bug where it mislinks FFI calls and they up crashing the program at runtime

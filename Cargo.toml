@@ -3,12 +3,21 @@ name = "i2c-demo"
 version = "0.1.0"
 authors = ["Rahix <hws@denx.de>"]
 
+[[bin]]
+name = "i2cdetect"
+path = "src/i2cdetect.rs"
+
+[[bin]]
+name = "i2c-demo"
+path = "src/main.rs"
+
 [dependencies]
 cortex-m = "0.5.2"
 cortex-m-rt = "0.5.1"
 panic-abort = "0.2.0"
 embedded-hal = "0.2.1"
 lsm303dlhc = "0.2.0"
+pcf8574 = { git = "https://github.com/Rahix/pcf8574" }
 
 [dependencies.f3]
 features = ["rt"]
