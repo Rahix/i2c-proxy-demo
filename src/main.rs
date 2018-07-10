@@ -41,7 +41,7 @@ fn main() -> ! {
     let i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
 
     // Create the bus manager
-    let bus = proxy::I2cBusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
+    let bus = proxy::BusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 
     // Create a device using the bus
     let mut lsm = lsm303dlhc::Lsm303dlhc::new(bus.acquire()).unwrap();

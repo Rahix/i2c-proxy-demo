@@ -55,23 +55,23 @@ impl<T> BusMutex<T> for cortex_m::interrupt::Mutex<T> {
 /// to use:
 ///
 /// ```
-/// let bus = I2cBusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
+/// let bus = BusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 /// ```
-pub struct I2cBusManager< M: BusMutex<cell::RefCell<T>>, T>(M, ::core::marker::PhantomData<T>);
+pub struct BusManager< M: BusMutex<cell::RefCell<T>>, T>(M, ::core::marker::PhantomData<T>);
 
-impl<M: BusMutex<cell::RefCell<T>>, T:> I2cBusManager<M, T> {
+impl<M: BusMutex<cell::RefCell<T>>, T> BusManager<M, T> {
     /// Create a new I2C bus manager from the given peripheral
-    pub fn new(i: T) -> I2cBusManager<M, T> {
+    pub fn new(i: T) -> BusManager<M, T> {
         let mutex = M::create(cell::RefCell::new(i));
 
-        I2cBusManager(mutex, ::core::marker::PhantomData)
+        BusManager(mutex, ::core::marker::PhantomData)
     }
 
     /// Acquire an instance of this bus for a device
     ///
     /// This instance will implement the i2c traits
-    pub fn acquire<'a>(&'a self) -> I2cProxy<'a, M, T> {
-        I2cProxy(&self.0, ::core::marker::PhantomData)
+    pub fn acquire<'a>(&'a self) -> BusProxy<'a, M, T> {
+        BusProxy(&self.0, ::core::marker::PhantomData)
     }
 }
 
@@ -82,13 +82,13 @@ impl<M: BusMutex<cell::RefCell<T>>, T:> I2cBusManager<M, T> {
 /// ```
 /// let device = MyI2cDevice::new(bus.acquire());
 /// ```
-pub struct I2cProxy<'a, M: 'a + BusMutex<cell::RefCell<T>>, T>(
+pub struct BusProxy<'a, M: 'a + BusMutex<cell::RefCell<T>>, T>(
     &'a M,
     ::core::marker::PhantomData<T>,
 );
 
 impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Write> i2c::Write
-    for I2cProxy<'a, M, T>
+    for BusProxy<'a, M, T>
 {
     type Error = T::Error;
 
@@ -101,7 +101,7 @@ impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Write> i2c::Write
 }
 
 impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Read> i2c::Read
-    for I2cProxy<'a, M, T>
+    for BusProxy<'a, M, T>
 {
     type Error = T::Error;
 
@@ -114,7 +114,7 @@ impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::Read> i2c::Read
 }
 
 impl<'a, M: 'a + BusMutex<cell::RefCell<T>>, T: i2c::WriteRead> i2c::WriteRead
-    for I2cProxy<'a, M, T>
+    for BusProxy<'a, M, T>
 {
     type Error = T::Error;
 
