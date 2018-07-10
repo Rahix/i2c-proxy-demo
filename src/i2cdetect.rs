@@ -17,10 +17,8 @@ use cortex_m::asm;
 use f3::hal::prelude::*;
 use f3::hal::stm32f30x;
 
-// the program entry point is ...
 entry!(main);
 
-// ... this never ending function
 fn main() -> ! {
     let cp = cortex_m::Peripherals::take().unwrap();
     let dp = stm32f30x::Peripherals::take().unwrap();
@@ -43,9 +41,12 @@ fn main() -> ! {
     let (i2c, _pins) = i2c.free();
 
     iprintln!(
-        &mut itm.stim[0],
-        "   _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _F"
+        &mut itm.stim[0], "\
+i2cdetect util for bare-metal
+-----------
+   _0 _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _E _F"
     );
+
     for addr in 0x00..0x78 {
         if addr & 0xf == 0x0 {
             iprint!(&mut itm.stim[0], "{:1X}_ ", addr >> 4);
@@ -87,6 +88,8 @@ fn main() -> ! {
         delay.borrow_mut().delay_ms(100u16);
     }
     iprint!(&mut itm.stim[0], "\n");
+
+    asm::bkpt();
 
     loop {
         asm::wfi();
