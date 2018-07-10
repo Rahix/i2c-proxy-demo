@@ -7,14 +7,19 @@ use embedded_hal::blocking::i2c;
 ///
 /// On a system where std is available, this is implemented by
 /// `std::sync::Mutex` (although this implementation
-/// does not work across threads), on a bare metal system it could be
-/// `cortex_m::interrupt::Mutex`
+/// does not allow sharing across threads), on a bare metal
+/// system it could be `cortex_m::interrupt::Mutex`
 pub trait BusMutex<'a, T> {
+    /// Create a mutex from the given value
     fn create(v: T) -> Self;
+
+    /// Lock the mutex and allow access to the value inside
+    /// the given closure
     fn lock<R, F: FnOnce(&T) -> R>(&'a self, f: F) -> R;
 }
 
 /*
+/// Implementation for `std::sync::Mutex`
 impl<'a, T: 'a> BusMutex<'a, T> for ::std::sync::Mutex<T> {
     fn create(v: T) -> Self {
         ::std::sync::Mutex::new(v)
@@ -27,6 +32,7 @@ impl<'a, T: 'a> BusMutex<'a, T> for ::std::sync::Mutex<T> {
 }
 */
 
+/// Implementation for `cortex_m::interrupt::Mutex`
 impl<'a, T: 'a> BusMutex<'a, T> for cortex_m::interrupt::Mutex<T> {
     fn create(v: T) -> Self {
         cortex_m::interrupt::Mutex::new(v)
@@ -40,29 +46,16 @@ impl<'a, T: 'a> BusMutex<'a, T> for cortex_m::interrupt::Mutex<T> {
     }
 }
 
-/*
-impl<'a, T: 'a> BusMutex<'a, T> for ::std::sync::Mutex<T> {
-    type Guard = ::std::sync::MutexGuard<'a, T>;
-
-    fn create(v: T) -> Self {
-        ::std::sync::Mutex::new(v)
-    }
-
-    fn lock<R, F: FnOnce(Self::Guard) -> R>(&'a self, f: F) -> R {
-        let v = self.lock().unwrap();
-        f(v)
-    }
-}
-*/
-
 /// The Bus Manager
 ///
-/// The bus-manager is created like this:
+/// The bus manager is the owner of the i2c peripheral. It has to stay alive
+/// longer than all devices making use of the bus.
+///
+/// When creating the bus manager, you have to specify what mutex you want
+/// to use:
 ///
 /// ```
-/// let i2c = interface::DummyI2c;
-///
-/// let bus = proxy::I2cBusManager::<::std::sync::Mutex<_>, _>::new(i2c);
+/// let bus = I2cBusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 /// ```
 pub struct I2cBusManager<'a, M: BusMutex<'a, cell::RefCell<T>>, T: 'a>(
     M,
@@ -70,12 +63,16 @@ pub struct I2cBusManager<'a, M: BusMutex<'a, cell::RefCell<T>>, T: 'a>(
 );
 
 impl<'a, M: BusMutex<'a, cell::RefCell<T>>, T: 'a> I2cBusManager<'a, M, T> {
+    /// Create a new I2C bus manager from the given peripheral
     pub fn new(i: T) -> I2cBusManager<'a, M, T> {
         let mutex = M::create(cell::RefCell::new(i));
 
         I2cBusManager(mutex, &::core::marker::PhantomData)
     }
 
+    /// Acquire an instance of this bus for a device
+    ///
+    /// This instance will implement the i2c traits
     pub fn acquire<'b>(&'a self) -> I2cProxy<'a, 'b, M, T> {
         I2cProxy(&self.0, &::core::marker::PhantomData)
     }

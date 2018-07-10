@@ -2,38 +2,31 @@
 #![no_std]
 
 extern crate f3;
-#[macro_use]
 extern crate cortex_m;
 extern crate embedded_hal;
-extern crate lsm303dlhc;
 extern crate panic_abort;
-extern crate pcf8574;
-
 #[macro_use(entry, exception)]
 extern crate cortex_m_rt;
+
+// Chips used in this demo
+extern crate lsm303dlhc;
+extern crate pcf8574;
 
 mod proxy;
 
 use core::cell;
-
 use cortex_m::asm;
-
 use f3::hal::prelude::*;
 use f3::hal::stm32f30x;
 
-// the program entry point is ...
 entry!(main);
 
-// ... this never ending function
 fn main() -> ! {
     let cp = cortex_m::Peripherals::take().unwrap();
     let dp = stm32f30x::Peripherals::take().unwrap();
 
     let mut flash = dp.FLASH.constrain();
     let mut rcc = dp.RCC.constrain();
-    let mut itm = cp.ITM;
-
-    iprintln!(&mut itm.stim[0], "Start");
 
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
@@ -44,12 +37,13 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_af4(&mut gpiob.moder, &mut gpiob.afrl);
     let sda = gpiob.pb7.into_af4(&mut gpiob.moder, &mut gpiob.afrl);
 
+    // Create the I2C peripheral
     let i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
 
+    // Create the bus manager
     let bus = proxy::I2cBusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
 
-    iprintln!(&mut itm.stim[0], "Bus is set up");
-
+    // Create a device using the bus
     let mut lsm = lsm303dlhc::Lsm303dlhc::new(bus.acquire()).unwrap();
     let mut get_accel = || {
         use f3::hal::prelude::*;
@@ -67,12 +61,13 @@ fn main() -> ! {
         (x / 10, y / 10, z / 10)
     };
 
-    let a = get_accel();
-    iprintln!(&mut itm.stim[0], "Acceleration: {} {} {}", a.0, a.1, a.2);
-
+    // Create more devices in the bus
     let mut porta = pcf8574::Pcf8574::new(bus.acquire(), 0x39).unwrap();
     let mut portb = pcf8574::Pcf8574::new(bus.acquire(), 0x38).unwrap();
 
+    // Using LEDs connected to the port expanders, display
+    // an animation, whose speed depends on the orientation
+    // of the accelerometer
     let sequence = [0x20, 0x10, 0x02, 0x04, 0x08, 0x40];
     let mut i = 0;
 
@@ -84,10 +79,13 @@ fn main() -> ! {
             .unwrap();
 
         let a = get_accel();
-        iprintln!(&mut itm.stim[0], "Acceleration: {} {} {}", a.0, a.1, a.2);
         delay.borrow_mut().delay_ms((a.2 / 5) as u16);
     }
 }
+
+
+// -------------------------
+// Handlers
 
 exception!(HardFault, hard_fault);
 
