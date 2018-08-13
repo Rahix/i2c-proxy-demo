@@ -8,11 +8,11 @@ extern crate panic_abort;
 #[macro_use(entry, exception)]
 extern crate cortex_m_rt;
 
+extern crate shared_bus;
+
 // Chips used in this demo
 extern crate lsm303dlhc;
 extern crate pcf8574;
-
-mod proxy;
 
 use core::cell;
 use cortex_m::asm;
@@ -41,7 +41,7 @@ fn main() -> ! {
     let i2c = f3::hal::i2c::I2c::i2c1(dp.I2C1, (scl, sda), 90.khz(), clocks, &mut rcc.apb1);
 
     // Create the bus manager
-    let bus = proxy::BusManager::<cortex_m::interrupt::Mutex<_>, _>::new(i2c);
+    let bus = shared_bus::CortexMBusManager::new(i2c);
 
     // Create a device using the bus
     let mut lsm = lsm303dlhc::Lsm303dlhc::new(bus.acquire()).unwrap();

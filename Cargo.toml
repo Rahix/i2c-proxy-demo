@@ -1,7 +1,7 @@
 [package]
+authors = ["Rahix <rahix@rahix.de>"]
 name = "i2c-demo"
 version = "0.1.0"
-authors = ["Rahix <hws@denx.de>"]
 
 [[bin]]
 name = "i2cdetect"
@@ -12,18 +12,27 @@ name = "i2c-demo"
 path = "src/main.rs"
 
 [dependencies]
-cortex-m = "0.5.2"
+cortex-m = "0.5.4"
 cortex-m-rt = "0.5.1"
-panic-abort = "0.2.0"
 embedded-hal = "0.2.1"
 lsm303dlhc = "0.2.0"
-pcf8574 = { git = "https://github.com/Rahix/pcf8574" }
+panic-abort = "0.2.0"
 
 [dependencies.f3]
 features = ["rt"]
 version = "0.6.1"
 
+[dependencies.pcf8574]
+git = "https://github.com/Rahix/pcf8574"
+
+[dependencies.shared-bus]
+features = ["cortexm"]
+optional = false
+version = "^0.1.0"
+
+[profile]
+
 [profile.release]
-codegen-units = 1 # better optimizations
+codegen-units = 1
 debug = true
-lto = true # better optimizations
+lto = true
